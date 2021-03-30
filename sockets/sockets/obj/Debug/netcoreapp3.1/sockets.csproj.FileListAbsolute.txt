@@ -1,0 +1,13 @@
+C:\Users\bruno\Documents\Github\sockets\sockets\bin\Debug\netcoreapp3.1\sockets.exe
+C:\Users\bruno\Documents\Github\sockets\sockets\bin\Debug\netcoreapp3.1\sockets.deps.json
+C:\Users\bruno\Documents\Github\sockets\sockets\bin\Debug\netcoreapp3.1\sockets.runtimeconfig.json
+C:\Users\bruno\Documents\Github\sockets\sockets\bin\Debug\netcoreapp3.1\sockets.runtimeconfig.dev.json
+C:\Users\bruno\Documents\Github\sockets\sockets\bin\Debug\netcoreapp3.1\sockets.dll
+C:\Users\bruno\Documents\Github\sockets\sockets\bin\Debug\netcoreapp3.1\sockets.pdb
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.csprojAssemblyReference.cache
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.AssemblyInfoInputs.cache
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.AssemblyInfo.cs
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.csproj.CoreCompileInputs.cache
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.dll
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.pdb
+C:\Users\bruno\Documents\Github\sockets\sockets\obj\Debug\netcoreapp3.1\sockets.genruntimeconfig.cache
