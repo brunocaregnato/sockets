@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets.csproj": {}
+    "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets\\sockets.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets.csproj": {
+    "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets\\sockets.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets.csproj",
+        "projectUniqueName": "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets\\sockets.csproj",
         "projectName": "sockets",
-        "projectPath": "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets.csproj",
+        "projectPath": "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets\\sockets.csproj",
         "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\obj\\",
+        "outputPath": "C:\\Users\\bruno\\Documents\\Github\\sockets\\sockets\\sockets\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\bruno\\AppData\\Roaming\\NuGet\\NuGet.Config",
