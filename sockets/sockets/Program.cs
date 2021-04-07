@@ -6,11 +6,8 @@ namespace sockets
 {
     class Program
     {
-
-        public static Book Book;
-
         static void Main(string[] args)
-        {           
+        {
             while(true)
             {
                 PrintMenu();
@@ -19,33 +16,37 @@ namespace sockets
                 switch (option)
                 {
                     case 1:
-                        if (Insert())
-                            Console.WriteLine("Livro inserido com sucesso.");
-                        else
-                            Console.WriteLine("Não foi possível inserir o livro.");
+                        AddBook();
                         break;
+
                     case 2:
-                    case 3:                         
-                        if(!Search(option))
-                        {
-                            Console.WriteLine("Não foi possível encontrar nenhum livro com essa busca.");
-                        }
+                        SearchByTitle();
                         break;
+
+                    case 3:
+                        SearchByAuthor();
+                        break;
+
                     case 4:
-                        if(Remove())
-                            Console.WriteLine("Livro removido com sucesso.");
-                        else
-                            Console.WriteLine("Não foi possível remover o livro.");
+                        SearchByYear();
                         break;
+
                     case 5:
-                        if (Update())
-                            Console.WriteLine("Livro alterado com sucesso.");
-                        else
-                            Console.WriteLine("Não foi possível alterar o livro.");
+                        SearchByEdition();
                         break;
+
                     case 6:
+                        Remove();
+                        break;
+
+                    case 7:
+                        Update();
+                        break;
+
+                    case 8:
                         Environment.Exit(0);
                         break;
+
                     default:
                         Console.WriteLine("Opção não existente");
                         break;
@@ -56,114 +57,276 @@ namespace sockets
         private static void PrintMenu()
         {
             Console.WriteLine("-------------------------------");
-            Console.WriteLine("1 - Criar Livro");
-            Console.WriteLine("2 - Consultar Livro");
-            Console.WriteLine("3 - Consultar por ano e número da edição");
-            Console.WriteLine("4 - Remover livro");
-            Console.WriteLine("5 - Alteração do livro");
-            Console.WriteLine("6 - Sair");
+            Console.WriteLine("1 - Criar livro");
+            Console.WriteLine("2 - Consultar livro por título");
+            Console.WriteLine("3 - Consultar livro por autor");
+            Console.WriteLine("4 - Consultar livro por ano");
+            Console.WriteLine("5 - Consultar livro por edição");
+            Console.WriteLine("6 - Remover livro");
+            Console.WriteLine("7 - Atualizar livro");
+            Console.WriteLine("8 - Sair");
             Console.WriteLine("-------------------------------");
             Console.Write("Digite sua opção: ");
         }
 
-        private static bool Insert()
+        private static void Execute(Action<ApplicationDbContext> callback)
         {
+            try
+            {
+                using (var context = new ApplicationDbContext())
+                {
+                    callback(context);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Falha Durante a operação: {e}");
+            }
+        }
+
+        private static void AddBook()
+        {
+
             Console.WriteLine("Título do Livro:");
             var title = Console.ReadLine();
+
             Console.WriteLine("Autor do Livro:");
             var author = Console.ReadLine();
+
             Console.WriteLine("Ano do Livro:");
             var year = int.Parse(Console.ReadLine());
+
             Console.WriteLine("Edição do Livro:");
             var edition = int.Parse(Console.ReadLine());
 
-            Book = new Book();
-
-            return Book.Insert(new Book
+            Execute(context =>
             {
-                Title = title,
-                Author = author,
-                Year = year,
-                Edition = edition
-            });
-        }
-
-        private static bool Search(int option)
-        {
-            Book = new Book();
-            var books = new List<Book>();
-            if(option.Equals(2))
-            {
-                Console.WriteLine("Título do Livro:");
-                var title = Console.ReadLine();
-                Console.WriteLine("Autor do Livro:");
-                var author = Console.ReadLine();
-                books = Book.Search(title, author);
-            }
-            else 
-            {
-                Console.WriteLine("Ano do Livro:");
-                var year = int.Parse(Console.ReadLine());
-                Console.WriteLine("Edição do Livro:");
-                var edition = int.Parse(Console.ReadLine());
-                books = Book.Search(year, edition, false);
-            }
-
-            if (books.Count.Equals(0))
-                return false;
-            
-            books.OrderBy(x => x.Title).ToList().ForEach(book =>
-                Console.WriteLine($"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}"));
-
-            return true;
-        }
-
-        private static bool Remove()
-        {
-            Book = new Book();
-            Console.WriteLine("Título completo do livro para remover:");
-            var title = Console.ReadLine();
-            var book = Book.GetByTitle(title);
-            if(!book.Equals(null))
-            {
-                Book.Remove(book.Id);
-                return true;
-            }
-            return false;
-
-        }
-
-        private static bool Update()
-        {
-            Book = new Book();
-            Console.WriteLine("Título do Livro para alterar:");
-            var title = Console.ReadLine();
-            var book = Book.GetByTitle(title);
-
-            if(!book.Equals(null))
-            {
-                Console.WriteLine("Novo título do Livro:");
-                title = Console.ReadLine();
-                Console.WriteLine("Novo autor do Livro:");
-                var author = Console.ReadLine();
-                Console.WriteLine("Novo ano do Livro:");
-                var year = int.Parse(Console.ReadLine());
-                Console.WriteLine("Nova edição do Livro:");
-                var edition = int.Parse(Console.ReadLine());
-
-                Book.Update(new Book
+                context.Books.Add(new Book
                 {
                     Title = title,
                     Author = author,
                     Year = year,
                     Edition = edition
                 });
-
-                return true;
-            }
-
-            return false;
-                
+                context.SaveChanges();
+                Console.WriteLine("Livro inserido com sucesso.");
+            });
         }
+
+        private static void SearchByTitle()
+        {
+            Console.WriteLine("Título do Livro:");
+            var title = Console.ReadLine();
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .OrderBy(b => b.Title)
+                    .AsEnumerable();
+
+                if (!books.Any())
+                {
+                    Console.WriteLine("Nenhum livro encontrado");
+                    return;
+                }
+
+                foreach(var book in books)
+                {
+                    Console.WriteLine($"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}");
+                }
+            });
+        }
+
+        private static void SearchByAuthor()
+        {
+            Console.WriteLine("Autor do Livro:");
+            var author = Console.ReadLine();
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Author.ToUpper().Contains(author.ToUpper()))
+                    .OrderBy(b => b.Author)
+                    .AsEnumerable();
+
+                if (!books.Any())
+                {
+                    Console.WriteLine("Nenhum livro encontrado");
+                    return;
+                }
+
+                foreach(var book in books)
+                {
+                    Console.WriteLine($"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}");
+                }
+            });
+        }
+
+        private static void SearchByYear()
+        {
+            Console.WriteLine("Ano do Livro:");
+            var year = int.Parse(Console.ReadLine());
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Year == year)
+                    .OrderBy(b => b.Author)
+                    .AsEnumerable();
+
+                if (!books.Any())
+                {
+                    Console.WriteLine("Nenhum livro encontrado");
+                    return;
+                }
+
+                foreach(var book in books)
+                {
+                    Console.WriteLine($"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}");
+                }
+            });
+        }
+
+        private static void SearchByEdition()
+        {
+            Console.WriteLine("Edição do Livro:");
+            var edition = int.Parse(Console.ReadLine());
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Edition == edition)
+                    .OrderBy(b => b.Author)
+                    .AsEnumerable();
+
+                if (!books.Any())
+                {
+                    Console.WriteLine("Nenhum livro encontrado");
+                    return;
+                }
+
+                foreach(var book in books)
+                {
+                    Console.WriteLine($"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}");
+                }
+            });
+        }
+
+        private static void Remove()
+        {
+            Console.WriteLine("Título do Livro:");
+            var title = Console.ReadLine();
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .OrderBy(b => b.Title)
+                    .AsEnumerable();
+
+                if (!books.Any())
+                {
+                    Console.WriteLine("Nenhum livro encontrado");
+                    return;
+                }
+
+                if (books.Count() > 1)
+                {
+                    Console.WriteLine("Mais de um livro encontrado, livros:");
+
+                    foreach(var b in books)
+                    {
+                        Console.WriteLine($"    Livro: {b.Title} - Autor: {b.Author} - Ano: {b.Year} - Edição: {b.Edition}");
+                    }
+                }
+
+                var book = books.Single();
+                context.Books.Remove(book);
+                context.SaveChanges();
+                Console.WriteLine($"Livro {book.Title} removido");
+            });
+        }
+
+        private static void Update()
+        {
+            Console.WriteLine("Título do Livro:");
+            var title = Console.ReadLine();
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .OrderBy(b => b.Title)
+                    .AsEnumerable();
+
+                if (!books.Any())
+                {
+                    Console.WriteLine("Nenhum livro encontrado");
+                    return;
+                }
+
+                if (books.Count() > 1)
+                {
+                    Console.WriteLine("Mais de um livro encontrado, livros:");
+
+                    foreach(var b in books)
+                    {
+                        Console.WriteLine($"    Livro: {b.Title} - Autor: {b.Author} - Ano: {b.Year} - Edição: {b.Edition}");
+                    }
+                }
+
+                var book = books.Single();
+
+                Console.WriteLine("Novo título do Livro:");
+                book.Title = Console.ReadLine();
+
+                Console.WriteLine("Novo autor do Livro:");
+                book.Author = Console.ReadLine();
+
+                Console.WriteLine("Novo ano do Livro:");
+                book.Year = int.Parse(Console.ReadLine());
+
+                Console.WriteLine("Nova edição do Livro:");
+                book.Edition = int.Parse(Console.ReadLine());
+
+                context.Books.Update(book);
+                context.SaveChanges();
+                Console.WriteLine($"Livro {book.Title} atualizado");
+            });
+        }
+
+        // private static bool Update()
+        // {
+        //     // Book = new Book();
+        //     // Console.WriteLine("Título do Livro para alterar:");
+        //     // var title = Console.ReadLine();
+        //     // var book = Book.GetByTitle(title);
+
+        //     // if(!book.Equals(null))
+        //     // {
+        //     //     Console.WriteLine("Novo título do Livro:");
+        //     //     title = Console.ReadLine();
+        //     //     Console.WriteLine("Novo autor do Livro:");
+        //     //     var author = Console.ReadLine();
+        //     //     Console.WriteLine("Novo ano do Livro:");
+        //     //     var year = int.Parse(Console.ReadLine());
+        //     //     Console.WriteLine("Nova edição do Livro:");
+        //     //     var edition = int.Parse(Console.ReadLine());
+
+        //     //     Book.Update(new Book
+        //     //     {
+        //     //         Title = title,
+        //     //         Author = author,
+        //     //         Year = year,
+        //     //         Edition = edition
+        //     //     });
+
+        //     //     return true;
+        //     // }
+
+        //     return false;
+                
+        // }
     }
 }
