@@ -8,12 +8,7 @@ namespace sockets
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // modelBuilder.Entity<Book>()
-            //     .HasKey(b => b.Id);
-
-            // modelBuilder.Entity<Book>()
-            //     .Property(b => b.Id)
-            //     .ValueGeneratedOnAdd();
+            
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
