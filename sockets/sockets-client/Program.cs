@@ -10,13 +10,13 @@ namespace sockets_client
         {
             int option;
 
-            var client = new TcpClient("localhost", 9000);
-            var output = client.GetStream();
-            var receive = new BinaryReader(output);
-            var send = new BinaryWriter(output);
-
             while (true)
             {
+                var client = new TcpClient("localhost", 9000);
+                var output = client.GetStream();
+                var receive = new BinaryReader(output);
+                var send = new BinaryWriter(output);
+
                 PrintMenu();
                 while (true)
                 {
@@ -31,7 +31,7 @@ namespace sockets_client
                     }
                 }
 
-                string title, author;
+                string title, author, message = string.Empty;
                 int year, edition;
                 switch (option)
                 {
@@ -115,15 +115,42 @@ namespace sockets_client
                         break;
 
                     case 7:
-                        //Update();
+                        Console.WriteLine("Título do Livro:");
+                        title = Console.ReadLine();
+                        using (var ms = new MemoryStream())
+                        {
+                            using var writer = new BinaryWriter(ms);
+                            send.Write(option);
+                            send.Write(title);
+                        }
+                        message = receive.ReadString();
+                        if (message.Equals(string.Empty)) { 
+                            Console.WriteLine("Novo título do Livro:");
+                            title = Console.ReadLine();
+
+                            Console.WriteLine("Novo autor do Livro:");
+                            author = Console.ReadLine();
+
+                            Console.WriteLine("Novo ano do Livro:");
+                            year = int.Parse(Console.ReadLine());
+
+                            Console.WriteLine("Nova edição do Livro:");
+                            edition = int.Parse(Console.ReadLine());
+                            using (var ms = new MemoryStream())
+                            {
+                                using var writer = new BinaryWriter(ms);
+                                send.Write(9);
+                                send.Write(title);
+                                send.Write(author);
+                                send.Write(year);
+                                send.Write(edition);
+                            }
+                        }
+
                         break;
 
                     case 8:
                         send.Write(option);
-                        output.Close();
-                        receive.Close();
-                        send.Close();
-                        client.Close();
                         Environment.Exit(0);
                         break;
 
@@ -132,8 +159,13 @@ namespace sockets_client
                         break;
                 }
 
-                Console.WriteLine("Waiting Server response...");
-                Console.WriteLine(receive.ReadString());
+                
+                Console.WriteLine(option != 7 ? receive.ReadString() : message);
+
+                output.Close();
+                receive.Close();
+                send.Close();
+                client.Close();
             }
         }
 

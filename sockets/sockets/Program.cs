@@ -11,79 +11,90 @@ namespace sockets
     {
         static void Main(string[] args)
         {
-
             var server = new TcpListener(IPAddress.Parse("127.0.0.1"), 9000);
             server.Start();
             Console.WriteLine("Server initialized");
 
-            var clientAccept = server.AcceptTcpClient();
-            Console.WriteLine("Client has connected.");
-
-            var output = clientAccept.GetStream();            
-            var send = new BinaryWriter(output);
-                        
-            int option;
-            BinaryReader receive;
-
-            string title, author;
-            int year, edition;
-
-            using (receive = new BinaryReader(output))
+            while (true)
             {
-                option = receive.ReadInt32();
+                var clientAccept = server.AcceptTcpClient();
+                Console.WriteLine("Client has connected.");
 
-                switch (option)
+                var output = clientAccept.GetStream();
+                var send = new BinaryWriter(output);
+
+                int option;
+                BinaryReader receive;
+
+                string title, author;
+                int year, edition;
+
+                using (receive = new BinaryReader(output))
                 {
-                    case 1:
-                        title = receive.ReadString();
-                        author = receive.ReadString();
-                        year = receive.ReadInt32(); 
-                        edition = receive.ReadInt32();
-                        send.Write(AddBook(title, author, year, edition));
-                        break;
+                    option = receive.ReadInt32();
 
-                    case 2:
-                        title = receive.ReadString();
-                        send.Write(SearchByTitle(title));
-                        break;
+                    switch (option)
+                    {
+                        case 1:
+                            title = receive.ReadString();
+                            author = receive.ReadString();
+                            year = receive.ReadInt32();
+                            edition = receive.ReadInt32();
+                            send.Write(AddBook(title, author, year, edition));
+                            break;
 
-                    case 3:
-                        author = receive.ReadString();
-                        send.Write(SearchByAuthor(author));
-                        break;
+                        case 2:
+                            title = receive.ReadString();
+                            send.Write(SearchByTitle(title));
+                            break;
 
-                    case 4:
-                        year = receive.ReadInt32();
-                        send.Write(SearchByYear(year));
-                        break;
+                        case 3:
+                            author = receive.ReadString();
+                            send.Write(SearchByAuthor(author));
+                            break;
 
-                    case 5:
-                        edition = receive.ReadInt32();
-                        send.Write(SearchByEdition(edition));
-                        break;
+                        case 4:
+                            year = receive.ReadInt32();
+                            send.Write(SearchByYear(year));
+                            break;
 
-                    case 6:
-                        title = receive.ReadString();
-                        send.Write(Remove(title));
-                        break;
+                        case 5:
+                            edition = receive.ReadInt32();
+                            send.Write(SearchByEdition(edition));
+                            break;
 
-                    case 7:
-                        Update();
-                        break;
+                        case 6:
+                            title = receive.ReadString();
+                            send.Write(Remove(title));
+                            break;
 
-                    case 8:
-                        output.Close();
-                        receive.Close();
-                        send.Close();
-                        clientAccept.Close();
-                        server.Stop();
-                        break; 
+                        case 7:
+                            title = receive.ReadString();
+                            send.Write(VerifiyBook(title));
+                            break;
 
-                    default:
-                        Console.WriteLine("Opção inexistente!");
-                        break;
+                        case 8:
+                            output.Close();
+                            receive.Close();
+                            send.Close();
+                            clientAccept.Close();
+                            server.Stop();
+                            break;
+
+                        case 9:
+                            title = receive.ReadString();
+                            author = receive.ReadString();
+                            year = receive.ReadInt32();
+                            edition = receive.ReadInt32();
+                            send.Write(Update(title, author, year, edition));
+                            break;
+
+                        default:
+                            Console.WriteLine("Opção inexistente!");
+                            break;
+                    }
                 }
-            }
+            }            
         }
 
         private static void Execute(Action<ApplicationDbContext> callback)
@@ -115,11 +126,11 @@ namespace sockets
                 try
                 {
                     context.SaveChanges();
-                    returnMessage = "Livro inserido com sucesso.";
+                    returnMessage = "Livro inserido com sucesso.\n";
                 }
                 catch(Exception)
                 {
-                    returnMessage = "Não foi possível inserir o livro.";
+                    returnMessage = "Não foi possível inserir o livro.\n";
                 }
 
             });
@@ -139,11 +150,11 @@ namespace sockets
                     .AsEnumerable();
 
                 if (!books.Any())
-                    returnMessage = "Nenhum livro encontrado";
+                    returnMessage = "Nenhum livro encontrado.\n";
 
                 foreach(var book in books)
                 {
-                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}";
+                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}\n";
                 }
             });
 
@@ -163,12 +174,12 @@ namespace sockets
 
                 if (!books.Any())
                 {
-                    returnMessage = "Nenhum livro encontrado";
+                    returnMessage = "Nenhum livro encontrado.\n";
                 }
 
                 foreach(var book in books)
                 {
-                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}";
+                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}\n";
                 }
             });
 
@@ -188,12 +199,12 @@ namespace sockets
 
                 if (!books.Any())
                 {
-                    returnMessage = "Nenhum livro encontrado";
+                    returnMessage = "Nenhum livro encontrado.\n";
                 }
 
                 foreach(var book in books)
                 {
-                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}";
+                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}\n";
                 }
             });
 
@@ -213,12 +224,12 @@ namespace sockets
 
                 if (!books.Any())
                 {
-                    returnMessage = "Nenhum livro encontrado";
+                    returnMessage = "Nenhum livro encontrado.\n";
                 }
 
                 foreach(var book in books)
                 {
-                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}";
+                    returnMessage += $"Livro: {book.Title} - Autor: {book.Author} - Ano: {book.Year} - Edição: {book.Edition}\n";
                 }
             });
 
@@ -238,7 +249,7 @@ namespace sockets
 
                 if (!books.Any())
                 {
-                    returnMessage = "Nenhum livro encontrado.";
+                    returnMessage = "Nenhum livro encontrado.\n";
                 }
                 else if (books.Count() > 1)
                 {
@@ -246,7 +257,7 @@ namespace sockets
 
                     foreach(var b in books)
                     {
-                        returnMessage += $"    Livro: {b.Title} - Autor: {b.Author} - Ano: {b.Year} - Edição: {b.Edition}";
+                        returnMessage += $"    Livro: {b.Title} - Autor: {b.Author} - Ano: {b.Year} - Edição: {b.Edition}\n";
                     }
                 }
                 else
@@ -256,11 +267,11 @@ namespace sockets
                     try
                     {
                         context.SaveChanges();
-                        returnMessage += $"Livro {book.Title} removido";
+                        returnMessage = $"Livro {book.Title} removido\n";
                     }
                     catch (Exception)
                     {
-                        returnMessage += $"Não foi possivel remover o livro: {book.Title}";
+                        returnMessage = $"Não foi possivel remover o livro: {book.Title}\n";
                     }
                 }                
             });
@@ -268,11 +279,9 @@ namespace sockets
             return returnMessage;
         }
 
-        private static void Update()
+        private static string VerifiyBook(string title)
         {
-            Console.WriteLine("Título do Livro:");
-            var title = Console.ReadLine();
-
+            var returnMessage = string.Empty;
             Execute(context =>
             {
                 var books = context.Books.AsQueryable()
@@ -282,38 +291,53 @@ namespace sockets
 
                 if (!books.Any())
                 {
-                    Console.WriteLine("Nenhum livro encontrado");
-                    return;
+                    returnMessage = "Nenhum livro encontrado.\n";
                 }
-
-                if (books.Count() > 1)
+                else if (books.Count() > 1)
                 {
-                    Console.WriteLine("Mais de um livro encontrado, livros:");
+                    returnMessage = "Mais de um livro encontrado, livros:\n";
 
-                    foreach(var b in books)
+                    foreach (var b in books)
                     {
-                        Console.WriteLine($"    Livro: {b.Title} - Autor: {b.Author} - Ano: {b.Year} - Edição: {b.Edition}");
+                        returnMessage += $"    Livro: {b.Title} - Autor: {b.Author} - Ano: {b.Year} - Edição: {b.Edition}\n";
                     }
                 }
+            });
+
+            return returnMessage;
+        }
+
+        private static string Update(string title, string author, int year, int edition)
+        {
+            var returnMessage = string.Empty;
+
+            Execute(context =>
+            {
+                var books = context.Books.AsQueryable()
+                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .OrderBy(b => b.Title)
+                    .AsEnumerable();
 
                 var book = books.Single();
 
-                Console.WriteLine("Novo título do Livro:");
-                book.Title = Console.ReadLine();
+                book.Title = title;
+                book.Author = author;
+                book.Year = year;
+                book.Edition = edition;
 
-                Console.WriteLine("Novo autor do Livro:");
-                book.Author = Console.ReadLine();
-
-                Console.WriteLine("Novo ano do Livro:");
-                book.Year = int.Parse(Console.ReadLine());
-
-                Console.WriteLine("Nova edição do Livro:");
-                book.Edition = int.Parse(Console.ReadLine());
-
-                context.Books.Update(book);
-                context.SaveChanges();
-                Console.WriteLine($"Livro {book.Title} atualizado");
+                try
+                {
+                    context.Books.Update(book);
+                    context.SaveChanges();
+                    returnMessage = $"Livro {book.Title} atualizado\n";
+                }
+                catch (Exception)
+                {
+                    returnMessage = "Não foi possível atualizar o livro.\n";
+                }
             });
+
+            return returnMessage;
         }
     }
 }
