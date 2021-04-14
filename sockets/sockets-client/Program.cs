@@ -149,7 +149,7 @@ namespace sockets_client
                             break;
                         }
 
-                        Console.WriteLine(option != 8 ? receive.ReadString() : message);
+                        Console.WriteLine(option != 7 ? receive.ReadString() : message);
                     }
 
                 }

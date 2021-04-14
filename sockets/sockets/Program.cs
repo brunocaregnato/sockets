@@ -31,64 +31,62 @@ namespace sockets
 
                         while (run)
                         {
-                            var option = receive.ReadInt32();
-
-                            switch (option)
+                            switch (receive.ReadInt32())
                             {
-                            case 1:
-                                title = receive.ReadString();
-                                author = receive.ReadString();
-                                year = receive.ReadInt32();
-                                edition = receive.ReadInt32();
-                                send.Write(AddBook(title, author, year, edition));
-                                break;
+                                case 1:
+                                    title = receive.ReadString();
+                                    author = receive.ReadString();
+                                    year = receive.ReadInt32();
+                                    edition = receive.ReadInt32();
+                                    send.Write(AddBook(title, author, year, edition));
+                                    break;
 
-                            case 2:
-                                title = receive.ReadString();
-                                send.Write(SearchByTitle(title));
-                                break;
+                                case 2:
+                                    title = receive.ReadString();
+                                    send.Write(SearchByTitle(title));
+                                    break;
 
-                            case 3:
-                                author = receive.ReadString();
-                                send.Write(SearchByAuthor(author));
-                                break;
+                                case 3:
+                                    author = receive.ReadString();
+                                    send.Write(SearchByAuthor(author));
+                                    break;
 
-                            case 4:
-                                year = receive.ReadInt32();
-                                send.Write(SearchByYear(year));
-                                break;
+                                case 4:
+                                    year = receive.ReadInt32();
+                                    send.Write(SearchByYear(year));
+                                    break;
 
-                            case 5:
-                                edition = receive.ReadInt32();
-                                send.Write(SearchByEdition(edition));
-                                break;
+                                case 5:
+                                    edition = receive.ReadInt32();
+                                    send.Write(SearchByEdition(edition));
+                                    break;
 
-                            case 6:
-                                title = receive.ReadString();
-                                send.Write(Remove(title));
-                                break;
+                                case 6:
+                                    title = receive.ReadString();
+                                    send.Write(Remove(title));
+                                    break;
 
-                            case 7:
-                                title = receive.ReadString();
-                                send.Write(VerifiyBook(title));
-                                break;
+                                case 7:
+                                    title = receive.ReadString();
+                                    send.Write(VerifiyBook(title));
+                                    break;
 
-                            case 8:
-                                run = false;
-                                break;
+                                case 8:
+                                    run = false;
+                                    break;
 
-                            case 9:
-                                var oldTitle = receive.ReadString();
-                                var newTitle = receive.ReadString();
-                                author = receive.ReadString();
-                                year = receive.ReadInt32();
-                                edition = receive.ReadInt32();
-                                send.Write(Update(oldTitle, newTitle, author, year, edition));
-                                break;
+                                case 9:
+                                    var oldTitle = receive.ReadString();
+                                    var newTitle = receive.ReadString();
+                                    author = receive.ReadString();
+                                    year = receive.ReadInt32();
+                                    edition = receive.ReadInt32();
+                                    send.Write(Update(oldTitle, newTitle, author, year, edition));
+                                    break;
 
-                            default:
-                                Console.WriteLine("Opção inexistente!");
-                                break;
+                                default:
+                                    Console.WriteLine("Opção inexistente!");
+                                    break;
                             }
                         }
                     }
@@ -105,7 +103,7 @@ namespace sockets
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Falha Durante a operação: {e}");
+                Console.WriteLine($"Falha durante a operação: {e}");
             }
         }
 
