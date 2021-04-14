@@ -17,84 +17,83 @@ namespace sockets
 
             while (true)
             {
-                var clientAccept = server.AcceptTcpClient();
-                Console.WriteLine("Client has connected.");
-
-                var output = clientAccept.GetStream();
-                var send = new BinaryWriter(output);
-
-                int option;
-                BinaryReader receive;
-
-                string title, author;
-                int year, edition;
-
-                using (receive = new BinaryReader(output))
+                using (var clientAccept = server.AcceptTcpClient())
                 {
-                    option = receive.ReadInt32();
+                    Console.WriteLine("Client has connected.");
+                    var output = clientAccept.GetStream();
 
-                    switch (option)
+                    using (var send = new BinaryWriter(output))
+                    using (var receive = new BinaryReader(output))
                     {
-                        case 1:
-                            title = receive.ReadString();
-                            author = receive.ReadString();
-                            year = receive.ReadInt32();
-                            edition = receive.ReadInt32();
-                            send.Write(AddBook(title, author, year, edition));
-                            break;
+                        string title, author;
+                        int year, edition;
+                        var run = true;
 
-                        case 2:
-                            title = receive.ReadString();
-                            send.Write(SearchByTitle(title));
-                            break;
+                        while (run)
+                        {
+                            var option = receive.ReadInt32();
 
-                        case 3:
-                            author = receive.ReadString();
-                            send.Write(SearchByAuthor(author));
-                            break;
+                            switch (option)
+                            {
+                            case 1:
+                                title = receive.ReadString();
+                                author = receive.ReadString();
+                                year = receive.ReadInt32();
+                                edition = receive.ReadInt32();
+                                send.Write(AddBook(title, author, year, edition));
+                                break;
 
-                        case 4:
-                            year = receive.ReadInt32();
-                            send.Write(SearchByYear(year));
-                            break;
+                            case 2:
+                                title = receive.ReadString();
+                                send.Write(SearchByTitle(title));
+                                break;
 
-                        case 5:
-                            edition = receive.ReadInt32();
-                            send.Write(SearchByEdition(edition));
-                            break;
+                            case 3:
+                                author = receive.ReadString();
+                                send.Write(SearchByAuthor(author));
+                                break;
 
-                        case 6:
-                            title = receive.ReadString();
-                            send.Write(Remove(title));
-                            break;
+                            case 4:
+                                year = receive.ReadInt32();
+                                send.Write(SearchByYear(year));
+                                break;
 
-                        case 7:
-                            title = receive.ReadString();
-                            send.Write(VerifiyBook(title));
-                            break;
+                            case 5:
+                                edition = receive.ReadInt32();
+                                send.Write(SearchByEdition(edition));
+                                break;
 
-                        case 8:
-                            output.Close();
-                            receive.Close();
-                            send.Close();
-                            clientAccept.Close();
-                            server.Stop();
-                            break;
+                            case 6:
+                                title = receive.ReadString();
+                                send.Write(Remove(title));
+                                break;
 
-                        case 9:
-                            title = receive.ReadString();
-                            author = receive.ReadString();
-                            year = receive.ReadInt32();
-                            edition = receive.ReadInt32();
-                            send.Write(Update(title, author, year, edition));
-                            break;
+                            case 7:
+                                title = receive.ReadString();
+                                send.Write(VerifiyBook(title));
+                                break;
 
-                        default:
-                            Console.WriteLine("Opção inexistente!");
-                            break;
+                            case 8:
+                                run = false;
+                                break;
+
+                            case 9:
+                                var oldTitle = receive.ReadString();
+                                var newTitle = receive.ReadString();
+                                author = receive.ReadString();
+                                year = receive.ReadInt32();
+                                edition = receive.ReadInt32();
+                                send.Write(Update(oldTitle, newTitle, author, year, edition));
+                                break;
+
+                            default:
+                                Console.WriteLine("Opção inexistente!");
+                                break;
+                            }
+                        }
                     }
                 }
-            }            
+            }
         }
 
         private static void Execute(Action<ApplicationDbContext> callback)
@@ -243,7 +242,7 @@ namespace sockets
             Execute(context =>
             {
                 var books = context.Books.AsQueryable()
-                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .Where(b => b.Title == title)
                     .OrderBy(b => b.Title)
                     .AsEnumerable();
 
@@ -273,7 +272,7 @@ namespace sockets
                     {
                         returnMessage = $"Não foi possivel remover o livro: {book.Title}\n";
                     }
-                }                
+                }
             });
 
             return returnMessage;
@@ -285,7 +284,7 @@ namespace sockets
             Execute(context =>
             {
                 var books = context.Books.AsQueryable()
-                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .Where(b => b.Title == title)
                     .OrderBy(b => b.Title)
                     .AsEnumerable();
 
@@ -307,20 +306,20 @@ namespace sockets
             return returnMessage;
         }
 
-        private static string Update(string title, string author, int year, int edition)
+        private static string Update(string oldTitle, string newTitle, string author, int year, int edition)
         {
             var returnMessage = string.Empty;
 
             Execute(context =>
             {
                 var books = context.Books.AsQueryable()
-                    .Where(b => b.Title.ToUpper().Contains(title.ToUpper()))
+                    .Where(b => b.Title == oldTitle)
                     .OrderBy(b => b.Title)
                     .AsEnumerable();
 
                 var book = books.Single();
 
-                book.Title = title;
+                book.Title = newTitle;
                 book.Author = author;
                 book.Year = year;
                 book.Edition = edition;

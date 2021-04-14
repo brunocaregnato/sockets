@@ -10,162 +10,150 @@ namespace sockets_client
         {
             int option;
 
-            while (true)
+            using (var client = new TcpClient("localhost", 9000))
             {
-                var client = new TcpClient("localhost", 9000);
                 var output = client.GetStream();
-                var receive = new BinaryReader(output);
-                var send = new BinaryWriter(output);
 
-                PrintMenu();
-                while (true)
+                using (var receive = new BinaryReader(output))
+                using (var send = new BinaryWriter(output))
                 {
-                    try
+                    var run = true;
+
+                    while (run)
                     {
-                        option = int.Parse(Console.ReadLine());
-                        break;
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Digite uma opção válida!");
-                    }
-                }
-
-                string title, author, message = string.Empty;
-                int year, edition;
-                switch (option)
-                {
-                    case 1:
-                        Console.WriteLine("Título do Livro:");
-                        title = Console.ReadLine();
-
-                        Console.WriteLine("Autor do Livro:");
-                        author = Console.ReadLine();
-
-                        Console.WriteLine("Ano do Livro:");
-                        year = int.Parse(Console.ReadLine());
-
-                        Console.WriteLine("Edição do Livro:");
-                        edition = int.Parse(Console.ReadLine());
-
-                        using (var ms = new MemoryStream())
+                        PrintMenu();
+                        while (true)
                         {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(title);
-                            send.Write(author);
-                            send.Write(year);
-                            send.Write(edition);
+                            try
+                            {
+                                option = int.Parse(Console.ReadLine());
+                                break;
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine("Digite uma opção válida!");
+                            }
                         }
-                        break;
 
-                    case 2:
-                        Console.WriteLine("Título do Livro:");
-                        title = Console.ReadLine();
-                        using (var ms = new MemoryStream())
-                        {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(title);
-                        }
-                        break;
+                        string title, author, message = string.Empty;
+                        int year, edition;
 
-                    case 3:
-                        Console.WriteLine("Autor do Livro:");
-                        author = Console.ReadLine();
-                        using (var ms = new MemoryStream())
+                        switch (option)
                         {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(author);
-                        }
-                        break;
-
-                    case 4:
-                        Console.WriteLine("Ano do Livro:");
-                        year = int.Parse(Console.ReadLine());
-                        using (var ms = new MemoryStream())
-                        {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(year);
-                        }
-                        break;
-
-                    case 5:
-                        Console.WriteLine("Edição do Livro:");
-                        edition = int.Parse(Console.ReadLine());
-                        using (var ms = new MemoryStream())
-                        {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(edition);
-                        }
-                        break;
-
-                    case 6:
-                        Console.WriteLine("Título do Livro para remover:");
-                        title = Console.ReadLine();
-                        using (var ms = new MemoryStream())
-                        {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(title);
-                        }
-                        break;
-
-                    case 7:
-                        Console.WriteLine("Título do Livro:");
-                        title = Console.ReadLine();
-                        using (var ms = new MemoryStream())
-                        {
-                            using var writer = new BinaryWriter(ms);
-                            send.Write(option);
-                            send.Write(title);
-                        }
-                        message = receive.ReadString();
-                        if (message.Equals(string.Empty)) { 
-                            Console.WriteLine("Novo título do Livro:");
+                        case 1:
+                            Console.WriteLine("Título do Livro:");
                             title = Console.ReadLine();
 
-                            Console.WriteLine("Novo autor do Livro:");
+                            Console.WriteLine("Autor do Livro:");
                             author = Console.ReadLine();
 
-                            Console.WriteLine("Novo ano do Livro:");
+                            Console.WriteLine("Ano do Livro:");
                             year = int.Parse(Console.ReadLine());
 
-                            Console.WriteLine("Nova edição do Livro:");
+                            Console.WriteLine("Edição do Livro:");
                             edition = int.Parse(Console.ReadLine());
-                            using (var ms = new MemoryStream())
+
+                            send.Write(option);
+                            send.Write(title);
+                            send.Write(author);
+                            send.Write(year);
+                            send.Write(edition);
+
+                            break;
+
+                        case 2:
+                            Console.WriteLine("Título do Livro:");
+                            title = Console.ReadLine();
+
+                            send.Write(option);
+                            send.Write(title);
+
+                            break;
+
+                        case 3:
+                            Console.WriteLine("Autor do Livro:");
+                            author = Console.ReadLine();
+
+                            send.Write(option);
+                            send.Write(author);
+
+                            break;
+
+                        case 4:
+                            Console.WriteLine("Ano do Livro:");
+                            year = int.Parse(Console.ReadLine());
+
+                            send.Write(option);
+                            send.Write(year);
+
+                            break;
+
+                        case 5:
+                            Console.WriteLine("Edição do Livro:");
+                            edition = int.Parse(Console.ReadLine());
+
+                            send.Write(option);
+                            send.Write(edition);
+
+                            break;
+
+                        case 6:
+                            Console.WriteLine("Título do Livro para remover:");
+                            title = Console.ReadLine();
+
+                            send.Write(option);
+                            send.Write(title);
+
+                            break;
+
+                        case 7:
+                            Console.WriteLine("Título do Livro:");
+                            var oldTitle = Console.ReadLine();
+
+                            send.Write(option);
+                            send.Write(oldTitle);
+
+                            message = receive.ReadString();
+
+                            if (message.Equals(string.Empty))
                             {
-                                using var writer = new BinaryWriter(ms);
+                                Console.WriteLine("Novo título do Livro:");
+                                var newTitle = Console.ReadLine();
+
+                                Console.WriteLine("Novo autor do Livro:");
+                                author = Console.ReadLine();
+
+                                Console.WriteLine("Novo ano do Livro:");
+                                year = int.Parse(Console.ReadLine());
+
+                                Console.WriteLine("Nova edição do Livro:");
+                                edition = int.Parse(Console.ReadLine());
+
                                 send.Write(9);
-                                send.Write(title);
+                                send.Write(oldTitle);
+                                send.Write(newTitle);
                                 send.Write(author);
                                 send.Write(year);
                                 send.Write(edition);
                             }
+
+                            break;
+
+                        case 8:
+                            send.Write(option);
+                            run = false;
+                            break;
+
+                        default:
+                            Console.WriteLine("Opção não existente");
+                            break;
                         }
 
-                        break;
+                        Console.WriteLine(option != 8 ? receive.ReadString() : message);
+                    }
 
-                    case 8:
-                        send.Write(option);
-                        Environment.Exit(0);
-                        break;
-
-                    default:
-                        Console.WriteLine("Opção não existente");
-                        break;
                 }
 
-                
-                Console.WriteLine(option != 7 ? receive.ReadString() : message);
-
-                output.Close();
-                receive.Close();
-                send.Close();
-                client.Close();
             }
         }
 
